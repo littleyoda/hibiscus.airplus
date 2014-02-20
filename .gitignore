@@ -4,3 +4,11 @@
 *.jar
 *.war
 *.ear
+
+releases/*
+bin/*
+*~
+.classpath
+.settings
+.project
+build/BUILD
