@@ -58,6 +58,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 	@Override
 	public void execute() throws Exception
 	{
+        
 		Konto konto = (Konto) this.getContext(CTX_ENTITY); // wurde von AirPlusSynchronizeJobProviderKontoauszug dort abgelegt
 
 		Logger.info("Rufe Umsätze ab für " + backend.getName());
@@ -70,7 +71,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 			throw new ApplicationException(i18n.tr("Bitte geben Sie Ihren AirPlus-Benutzernamen in den Synchronisationsoptionen ein"));
 
 		if (password == null || password.length() == 0)
-			throw new ApplicationException(i18n.tr("Bitte geben Sie Ihr AirPlus-Passwort in den Synchronisationsoptionen ein"));
+			password = Application.getCallback().askPassword("AirPlus");
 
 
 
