@@ -3,10 +3,10 @@
 <plugin xmlns="http://www.willuhn.de/schema/jameica-plugin"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.willuhn.de/schema/jameica-plugin http://www.willuhn.de/schema/jameica-plugin-1.2.xsd"
-        name="hibiscus.airplus" version="1.0.0" class="org.jameica.hibiscus.airplus.Plugin">
+        name="hibiscus.airplus" version="1.0.1" class="org.jameica.hibiscus.airplus.Plugin">
 
   <description>Hibiscus-Support für AirPlus</description>
-  <url>https://github.com/littleyoda/hibiscus.airplus</url>
+  <url>http://www.open4me.de/hibiscus/hibiscus.airplus/hibiscus.airplus.zip</url>
   <homepage>https://github.com/littleyoda/hibiscus.airplus</homepage>
   <license></license>
 
