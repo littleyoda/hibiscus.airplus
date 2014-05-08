@@ -3,7 +3,16 @@ hibiscus.airplus
 
 Airplus-Plugin für Hibiscus
 
-Einrichtung:
+Installation des Plugins:
+- Menü Datei/Einstellungen
+- Reiter "Updates"
+- Neues Repository hinzufügen
+- "http://www.open4me.de/hibiscus/" in die Textbox eintragen
+- Doppel-Klick auf "http://www.open4me.de/hibiscus/"
+- Die Einstallation des gewünschten Plugins durch Doppel-Klick beginnen
+- Hibiscus neu starten
+
+Einrichtung eines Kontos:
 
 Unter dem Punkt "Konten" den Button "Konto manuell anlegen" anklicken.
 
