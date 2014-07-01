@@ -6,7 +6,6 @@ import java.rmi.RemoteException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -18,7 +17,6 @@ import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.ThreadedRefreshHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
@@ -164,8 +162,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 	}
 
 	private TextPage uebersichtsart(HtmlPage page, String elementID) throws Exception {
-		HtmlForm form = page.getForms().get(0);
-		HtmlRadioButtonInput rbutton = form.getElementById(elementID);
+		HtmlRadioButtonInput rbutton = (HtmlRadioButtonInput) page.getElementById(elementID);
 		page = rbutton.click();
 		//writePage(page, "Value1");
 		HtmlImageInput i = page.getElementByName("submit");
