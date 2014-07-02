@@ -96,7 +96,7 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend
       // Muss in Hibiscus als "Offline-Konto" angelegt worden sein.
       // Kann man z.Bsp. anhand der BLZ festmachen. Oder irgend ein anderes Merkmal,
       // welches nur bei den AirPlus-Konten in Hibiscus existiert.
-      if ((konto.getBLZ().equals("0000000") || konto.getBLZ().equals("0")) 
+      if ((konto.getBLZ().equals("0000000") || konto.getBLZ().equals("0") || konto.getBLZ().equals("50570018")) 
     		  && konto.getUnterkonto().toLowerCase().equals("airplus"))
         return true;
     }
