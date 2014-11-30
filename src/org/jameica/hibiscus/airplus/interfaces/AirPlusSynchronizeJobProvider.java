@@ -1,4 +1,4 @@
-package org.jameica.hibiscus.airplus;
+package org.jameica.hibiscus.airplus.interfaces;
 
 import de.willuhn.jameica.hbci.synchronize.SynchronizeJobProvider;
 

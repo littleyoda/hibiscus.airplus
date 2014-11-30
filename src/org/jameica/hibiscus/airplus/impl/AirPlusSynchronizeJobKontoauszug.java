@@ -1,4 +1,4 @@
-package org.jameica.hibiscus.airplus;
+package org.jameica.hibiscus.airplus.impl;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Resource;
+
+import org.jameica.hibiscus.airplus.AirPlusSynchronizeBackend;
+import org.jameica.hibiscus.airplus.Plugin;
+import org.jameica.hibiscus.airplus.Utils;
+import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJob;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
@@ -51,7 +56,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 
 	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 	/**
-	 * @see org.jameica.hibiscus.airplus.AirPlusSynchronizeJob#execute()
+	 * @see org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJob#execute()
 	 */
 	@Override
 	public void execute() throws Exception

@@ -4,6 +4,9 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJob;
+import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJobProvider;
+
 import de.willuhn.annotation.Lifecycle;
 import de.willuhn.annotation.Lifecycle.Type;
 import de.willuhn.jameica.hbci.rmi.Konto;
@@ -23,9 +26,9 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend
 {
   private final static I18N i18n = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
 
-  final static String PROP_COMPANYNAME = "AirPlus-Firmenname";
-  final static String PROP_USERNAME = "AirPlus-Benutzername";
-  final static String PROP_PASSWORD = "AirPlus-Passwort";
+  public final static String PROP_COMPANYNAME = "AirPlus-Firmenname";
+  public final static String PROP_USERNAME = "AirPlus-Benutzername";
+  public final static String PROP_PASSWORD = "AirPlus-Passwort";
   
   /**
    * @see de.willuhn.jameica.hbci.synchronize.AbstractSynchronizeBackend#createJobGroup(de.willuhn.jameica.hbci.rmi.Konto)
@@ -59,8 +62,7 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend
     
     try
     {
-      // Nur Offline-Konten.
-      if (konto == null || !konto.hasFlag(Konto.FLAG_OFFLINE) || konto.hasFlag(Konto.FLAG_DISABLED))
+      if (konto == null || konto.hasFlag(Konto.FLAG_DISABLED))
         return null;
       
       List<String> result = new ArrayList<String>();
@@ -88,9 +90,6 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend
     
     try
     {
-      // Wir unterstuetzen nur Offline-Konten
-      if (!konto.hasFlag(Konto.FLAG_OFFLINE))
-        return false;
       
       // Checken, ob das ein AirPlus-Konto ist
       // Muss in Hibiscus als "Offline-Konto" angelegt worden sein.
@@ -110,7 +109,7 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend
   /**
    * @see de.willuhn.jameica.hbci.synchronize.AbstractSynchronizeBackend#getSynchronizeKonten(de.willuhn.jameica.hbci.rmi.Konto)
    */
-  protected List<Konto> getSynchronizeKonten(Konto k)
+  public List<Konto> getSynchronizeKonten(Konto k)
   {
     List<Konto> list = super.getSynchronizeKonten(k);
     List<Konto> result = new ArrayList<Konto>();
@@ -118,15 +117,7 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend
     // Wir wollen nur die Offline-Konten haben
     for (Konto konto:list)
     {
-      try
-      {
-        if (konto.hasFlag(Konto.FLAG_OFFLINE))
           result.add(konto);
-      }
-      catch (RemoteException re)
-      {
-        Logger.error("unable to determine flags of konto",re);
-      }
     }
     
     return result;
