@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jameica.hibiscus.airplus.impl.AirPlusSynchronizeJobProviderKontoauszug;
 import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJob;
 import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJobProvider;
 
@@ -22,7 +23,7 @@ import de.willuhn.util.ProgressMonitor;
  * Implementierung eines Sync-Backends.
  */
 @Lifecycle(Type.CONTEXT)
-public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend
+public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend<AirPlusSynchronizeJobProvider>
 {
   private final static I18N i18n = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
 
@@ -43,7 +44,7 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend
    * @see de.willuhn.jameica.hbci.synchronize.AbstractSynchronizeBackend#getJobProviderInterface()
    */
   @Override
-  protected Class<? extends SynchronizeJobProvider> getJobProviderInterface()
+  protected Class<AirPlusSynchronizeJobProvider> getJobProviderInterface()
   {
     return AirPlusSynchronizeJobProvider.class;
   }
