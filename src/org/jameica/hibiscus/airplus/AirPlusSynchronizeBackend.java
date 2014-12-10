@@ -96,8 +96,9 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend<AirPlu
       // Muss in Hibiscus als "Offline-Konto" angelegt worden sein.
       // Kann man z.Bsp. anhand der BLZ festmachen. Oder irgend ein anderes Merkmal,
       // welches nur bei den AirPlus-Konten in Hibiscus existiert.
-      if ((konto.getBLZ().equals("0000000") || konto.getBLZ().equals("0") || konto.getBLZ().equals("50570018")) 
+      if (((konto.getBLZ().equals("0000000") || konto.getBLZ().equals("0") || konto.getBLZ().equals("50570018")) 
     		  && konto.getUnterkonto().toLowerCase().equals("airplus"))
+    	  || (konto.getBackendClass() != null && konto.getBackendClass().equals(getClass().toString())))
         return true;
     }
     catch (RemoteException re)
@@ -107,22 +108,6 @@ public class AirPlusSynchronizeBackend extends AbstractSynchronizeBackend<AirPlu
     return false;
   }
   
-  /**
-   * @see de.willuhn.jameica.hbci.synchronize.AbstractSynchronizeBackend#getSynchronizeKonten(de.willuhn.jameica.hbci.rmi.Konto)
-   */
-  public List<Konto> getSynchronizeKonten(Konto k)
-  {
-    List<Konto> list = super.getSynchronizeKonten(k);
-    List<Konto> result = new ArrayList<Konto>();
-    
-    // Wir wollen nur die Offline-Konten haben
-    for (Konto konto:list)
-    {
-          result.add(konto);
-    }
-    
-    return result;
-  }
 
   /**
    * @see de.willuhn.jameica.hbci.synchronize.SynchronizeBackend#getName()
