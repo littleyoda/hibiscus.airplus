@@ -115,7 +115,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 	public List<Umsatz> doOneAccount(Konto konto, String username, String password, String firmenname) throws Exception {
 		List<Umsatz> umsaetze = new ArrayList<Umsatz>();
 
-		final WebClient webClient = new WebClient(BrowserVersion.INTERNET_EXPLORER_8);
+		final WebClient webClient = new WebClient();
 		webClient.setCssErrorHandler(new SilentCssErrorHandler());
 		webClient.setRefreshHandler(new ThreadedRefreshHandler());
 
@@ -198,34 +198,28 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 //			}
 			// Aufbau der CSV Datei
 
-			//	altes Format 0 Rechnung;1 R.-Datum;2 R.-Pos.; 3 Kaufdatum;4 Buch.Datum;5 Leistungserbringer;
-			// 6Leistungsbeschreibung;7VK-Währung;8VK-Betrag;9Soll/Haben;10 Kurs;11Abr-Währung;
-			//12Abgerechnet;13Soll/Haben;14;15Auslandseinsatzentgelt Faktor;16Abr-Währung;
-			// 17Auslandseinsatzentgelt Wert
 
 			// Neues Format:
-			// 0 Rechnung	1 R.-Datum	2 A.I.D.A. Transaktion	3 R.-Pos.	 4 Kaufdatum	 5 Buch.Datum	 6 Leistungserbringer	7 Leistungsbeschreibung	
-			// 8VK-Währung	9 VK-Betrag	10 Soll/Haben	11 Kurs	 12 Abr-Währung	13 Abgerechnet	14 Soll/Haben	15	16 Auslandseinsatzentgelt  Faktor	17 Abr-Währung	18 Auslandseinsatzentgelt Wert
-			// Warnung HEader stimmt nicht mit dem Inhalt überein (STAND 15.Feb. 2014)
+			// 0Rechnung	1R.-Datum	2A.I.D.A. Transaktion	3R.-Pos.	4Kaufdatum	5Buch.Datum	6Leistungserbringer	7Leistungsbeschreibung	8VK-Währung	9VK-Betrag	10Soll/Haben	11Kurs	12Abr-Währung	13Abgerechnet	14Soll/Haben	15	16Auslandseinsatzentgelt Faktor	17Abr-Währung	18Auslandseinsatzentgelt Wert
 
 			Umsatz newUmsatz = (Umsatz) Settings.getDBService().createObject(Umsatz.class,null);
 			newUmsatz.setKonto(konto);
-			newUmsatz.setBetrag(x[15].equals("H")?Utils.string2float(x[14]):-Utils.string2float(x[14]));
-			newUmsatz.setDatum(df.parse(x[6]));
-			newUmsatz.setValuta(df.parse(x[5]));
-			newUmsatz.setWeitereVerwendungszwecke(Utils.parse(x[7] + " " + x[8]));
+			newUmsatz.setBetrag(x[14].equals("H")?Utils.string2float(x[13]):-Utils.string2float(x[13]));
+			newUmsatz.setDatum(df.parse(x[5]));
+			newUmsatz.setValuta(df.parse(x[4]));
+			newUmsatz.setWeitereVerwendungszwecke(Utils.parse(x[6] + " " + x[7]));
 			umsaetze.add(newUmsatz);
 			
 			// Sonderfall Auslandseinsatzentgelt
-			if (x.length >= 20) {
+			if (x.length >= 16) {
 			
 				newUmsatz = (Umsatz) Settings.getDBService().createObject(Umsatz.class,null);
 				newUmsatz.setKonto(konto);
-				newUmsatz.setBetrag(-Utils.string2float(x[19]));
-				newUmsatz.setDatum(df.parse(x[6]));
-				newUmsatz.setValuta(df.parse(x[5]));
-				newUmsatz.setWeitereVerwendungszwecke(Utils.parse(x[7] + " " 
-									+ x[8] + " "
+				newUmsatz.setBetrag(-Utils.string2float(x[18]));
+				newUmsatz.setDatum(df.parse(x[5]));
+				newUmsatz.setValuta(df.parse(x[4]));
+				newUmsatz.setWeitereVerwendungszwecke(Utils.parse(x[6] + " " 
+									+ x[7] + " "
 									+ "Auslandseinsatzentgelt"));
 				umsaetze.add(newUmsatz);
 			}
