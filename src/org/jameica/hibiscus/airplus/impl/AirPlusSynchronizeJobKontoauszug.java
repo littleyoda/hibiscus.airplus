@@ -8,8 +8,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 
 import javax.annotation.Resource;
 
@@ -183,53 +185,70 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 
 	private List<Umsatz> handle(TextPage p, Konto konto) throws Exception {
 		List<Umsatz> umsaetze = new ArrayList<Umsatz>();
-		//BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "ISO-8859-1"));
-		System.out.println(p.getContent());
-		BufferedReader in = new BufferedReader(new StringReader(p.getContent()));
-		in.readLine();
-		in.readLine();
-		in.readLine();
-		String s;
-		while ((s = in.readLine()) != null) {
-			String[] x = s.split(";");
-//			System.out.println(Arrays.toString(x));
-//			for (int i = 0; i < x.length; i++) {
-//				System.out.println(i + ": " + x[i]);
-//			}
-			// Aufbau der CSV Datei
-
-
-			// Neues Format:
-			// 0Rechnung	1R.-Datum	2A.I.D.A. Transaktion	3R.-Pos.	4Kaufdatum	5Buch.Datum	6Leistungserbringer	7Leistungsbeschreibung	8VK-Währung	9VK-Betrag	10Soll/Haben	11Kurs	12Abr-Währung	13Abgerechnet	14Soll/Haben	15	16Auslandseinsatzentgelt Faktor	17Abr-Währung	18Auslandseinsatzentgelt Wert
-
+		ArrayList<HashMap<String, String>> liste = parseCSV(p.getContent(), "Rechnung");
+		for (HashMap<String, String> e : liste) {
 			Umsatz newUmsatz = (Umsatz) Settings.getDBService().createObject(Umsatz.class,null);
 			newUmsatz.setKonto(konto);
-			newUmsatz.setBetrag(x[14].equals("H")?Utils.string2float(x[13]):-Utils.string2float(x[13]));
-			newUmsatz.setDatum(df.parse(x[5]));
-			newUmsatz.setValuta(df.parse(x[4]));
-			newUmsatz.setWeitereVerwendungszwecke(Utils.parse(x[6] + " " + x[7]));
+			newUmsatz.setBetrag(e.get("soll/haben").equals("H")?Utils.string2float(e.get("abgerechnet")):-Utils.string2float(e.get("abgerechnet")));
+			newUmsatz.setDatum(df.parse(e.get("buch.datum")));
+			newUmsatz.setValuta(df.parse(e.get("kaufdatum")));
+			newUmsatz.setWeitereVerwendungszwecke(Utils.parse(e.get("leistungserbringer") + " " + e.get("leistungsbeschreibung")));
 			umsaetze.add(newUmsatz);
-			
-			// Sonderfall Auslandseinsatzentgelt
-			if (x.length >= 16) {
-			
+
+//			// Sonderfall Auslandseinsatzentgelt
+			if (e.containsKey("auslandseinsatzentgelt wert")) {
 				newUmsatz = (Umsatz) Settings.getDBService().createObject(Umsatz.class,null);
 				newUmsatz.setKonto(konto);
-				newUmsatz.setBetrag(-Utils.string2float(x[18]));
-				newUmsatz.setDatum(df.parse(x[5]));
-				newUmsatz.setValuta(df.parse(x[4]));
-				newUmsatz.setWeitereVerwendungszwecke(Utils.parse(x[6] + " " 
-									+ x[7] + " "
-									+ "Auslandseinsatzentgelt"));
+				newUmsatz.setBetrag(-Utils.string2float(e.get("auslandseinsatzentgelt wert")));
+				newUmsatz.setDatum(df.parse(e.get("buch.datum")));
+				newUmsatz.setValuta(df.parse(e.get("kaufdatum")));
+				newUmsatz.setWeitereVerwendungszwecke(Utils.parse(e.get("leistungserbringer") + " " + e.get("leistungsbeschreibung") + " " + "Auslandseinsatzentgelt"));
 				umsaetze.add(newUmsatz);
 			}
-			
 		}
 		return umsaetze;
 
 	}
 
 
+	private ArrayList<HashMap<String, String>> parseCSV(String csv, String search) {
+		ArrayList<HashMap<String, String>> liste = new ArrayList<HashMap<String, String>>();
+		Scanner scanner = new Scanner(csv);
+		String[] header = null;
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			if (header == null) {
+				if (!line.startsWith(search)) {
+					continue;
+				}
+				header = line.replace(";;", ";_;").split(";");
+				String pre = "";
+				int nr = 1;
+				for (int i = 0; i < header.length; i++) {
+//					System.out.print(header[i]);
+					header[i] = header[i].toLowerCase();
+					String orig = header[i];
+					if (header[i].trim().equals("_") || header[i].trim().isEmpty()) {
+						header[i] = pre + nr;
+					} else {
+						nr = 1;
+					}
+					pre = orig;
+	//				System.out.println("  =>  " + header[i]);
+				}
+				continue;
+			}
+			HashMap<String, String> infos = new HashMap<String, String>();
+			String[] data = line.split(";");
+			for (int i = 0; i < data.length; i++) {
+				infos.put(header[i], data[i]);
+			}
+			liste.add(infos);
+		}
+		scanner.close();
+		return liste;
+
+	}
 	
 }
 
