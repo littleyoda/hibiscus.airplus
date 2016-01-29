@@ -4,7 +4,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jameica.hibiscus.airplus.impl.AirPlusSynchronizeJobProviderKontoauszug;
 import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJob;
 import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJobProvider;
 
@@ -12,7 +11,6 @@ import de.willuhn.annotation.Lifecycle;
 import de.willuhn.annotation.Lifecycle.Type;
 import de.willuhn.jameica.hbci.rmi.Konto;
 import de.willuhn.jameica.hbci.synchronize.AbstractSynchronizeBackend;
-import de.willuhn.jameica.hbci.synchronize.SynchronizeJobProvider;
 import de.willuhn.jameica.hbci.synchronize.jobs.SynchronizeJob;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.logging.Logger;

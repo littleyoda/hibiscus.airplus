@@ -33,6 +33,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlRadioButtonInput;
 
 import de.willuhn.datasource.GenericIterator;
+import de.willuhn.datasource.rmi.DBIterator;
 import de.willuhn.jameica.hbci.Settings;
 import de.willuhn.jameica.hbci.messaging.ImportMessage;
 import de.willuhn.jameica.hbci.messaging.SaldoMessage;
@@ -108,10 +109,56 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 			Application.getMessagingFactory().sendMessage(new ImportMessage(umsatz));
 		}
 
+		// Wir holen uns die Umsaetze seit dem letzen Abruf von der Datenbank
+		fixFehlerhafteUmsaetze(konto, oldest);
 		konto.store();
 
 		// Und per Messaging Bescheid geben, dass das Konto einen neuen Saldo hat
 		Application.getMessagingFactory().sendMessage(new SaldoMessage(konto));
+	}
+	
+	/**
+	 * Ein Hack, um die fehlerhaften Buchungen zu entfernen.
+	 * Fehlerhafte Buchungen sind 100x zu groß. Als stat 100€ wurde 10.000€ eingetragen.
+	 *  
+	 * @param konto
+	 * @param oldest
+	 * @throws RemoteException
+	 * @throws ApplicationException
+	 */
+	private void fixFehlerhafteUmsaetze(Konto konto, Date oldest) throws RemoteException, ApplicationException {
+		HashMap<String, fixit> eintrage = new HashMap<String, fixit>(); 
+		DBIterator existing = konto.getUmsaetze(oldest,null);
+		while (existing.hasNext()) {
+			Umsatz umsatz = (Umsatz) existing.next();
+			String ref = umsatz.getDatum() + " " + " " + Arrays.toString(umsatz.getWeitereVerwendungszwecke());
+			Integer betrag = (int) Math.round(umsatz.getBetrag() * 100.0d);
+			
+			fixit fix = new fixit();
+			fix.betrag = betrag;
+			fix.umsatz = umsatz;
+			
+			fixit fix2 = eintrage.get(ref);
+			// Prüfen, ob ich bereits eine Buchung dieser Art habe
+			if (fix2 != null) {
+				// fix2 soll den Umsatz um dem größeren Betrag sein
+				if (fix.betrag > fix2.betrag) {
+					fixit tmp = fix;
+					fix = fix2;
+					fix2 = tmp;
+				}
+				// Prüfen, ob der Betrag 100x mal größer ist.
+				if (fix.betrag == (fix2.betrag * 100)) {
+					fix.umsatz.delete();
+				}
+			}
+			eintrage.put(ref, fix);
+		}
+	}
+	
+	private class fixit {
+		public Umsatz umsatz;
+		public Integer betrag;
 	}
 
 	public List<Umsatz> doOneAccount(Konto konto, String username, String password, String firmenname) throws Exception {
