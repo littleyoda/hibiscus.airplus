@@ -65,7 +65,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 	@Override
 	public void execute() throws Exception
 	{
-        
+
 		Konto konto = (Konto) this.getContext(CTX_ENTITY); // wurde von AirPlusSynchronizeJobProviderKontoauszug dort abgelegt
 
 		Logger.info("Rufe Umsätze ab für " + backend.getName());
@@ -116,7 +116,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 		// Und per Messaging Bescheid geben, dass das Konto einen neuen Saldo hat
 		Application.getMessagingFactory().sendMessage(new SaldoMessage(konto));
 	}
-	
+
 	/**
 	 * Ein Hack, um die fehlerhaften Buchungen zu entfernen.
 	 * Fehlerhafte Buchungen sind 100x zu groß. Als stat 100€ wurde 10.000€ eingetragen.
@@ -127,38 +127,52 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 	 * @throws ApplicationException
 	 */
 	private void fixFehlerhafteUmsaetze(Konto konto, Date oldest) throws RemoteException, ApplicationException {
-		HashMap<String, fixit> eintrage = new HashMap<String, fixit>(); 
+		ArrayList<fixit> liste = new ArrayList<fixit>(); 
+		//		HashMap<String, fixit> eintrage = new HashMap<String, fixit>(); 
 		DBIterator existing = konto.getUmsaetze(null,null);
 		while (existing.hasNext()) {
 			Umsatz umsatz = (Umsatz) existing.next();
 			String ref = umsatz.getDatum() + " " + " " + Arrays.toString(umsatz.getWeitereVerwendungszwecke());
 			Integer betrag = (int) Math.round(umsatz.getBetrag() * 100.0d);
-			
+
 			fixit fix = new fixit();
 			fix.betrag = betrag;
 			fix.umsatz = umsatz;
-			
-			fixit fix2 = eintrage.get(ref);
-			// Prüfen, ob ich bereits eine Buchung dieser Art habe
-			if (fix2 != null) {
-				// fix2 soll den Umsatz um dem größeren Betrag sein
-				if (fix.betrag > fix2.betrag) {
-					fixit tmp = fix;
-					fix = fix2;
-					fix2 = tmp;
-				}
-				// Prüfen, ob der Betrag 100x mal größer ist.
-				if (fix.betrag == (fix2.betrag * 100)) {
-					fix.umsatz.delete();
+
+			for (fixit fix2 : liste) {
+				String ref2 = fix2.getRef();
+				// Prüfen, ob ich bereits eine Buchung dieser Art habe
+				if (ref2.equals(ref)) {
+					// Prüfen, ob der Betrag 100x mal größer ist.
+					if (fix.betrag == (fix2.betrag * 100)) { 
+						fix.umsatz.delete();
+						break;
+					} else if ((fix.betrag * 100) == fix2.betrag) {  
+						fix2.umsatz.delete();
+						break;
+					} else {
+
+//						System.out.println("0. " + (fix.betrag == (fix2.betrag * 100)));
+//						System.out.println("1.) Betrag diff: " + fix.getRef() +  ":" + fix.betrag);
+//						System.out.println("2.) Betrag diff: " + fix2.getRef() +  ":" + fix2.betrag);
+					}
 				}
 			}
-			eintrage.put(ref, fix);
+			liste.add(fix);
 		}
 	}
-	
+
 	private class fixit {
 		public Umsatz umsatz;
 		public Integer betrag;
+		@Override
+		public String toString() {
+			return "fixit [umsatz=" + umsatz + ", betrag=" + betrag + "]";
+		}
+
+		public String getRef() throws RemoteException {
+			return umsatz.getDatum() + " " + " " + Arrays.toString(umsatz.getWeitereVerwendungszwecke());
+		}
 	}
 
 	public List<Umsatz> doOneAccount(Konto konto, String username, String password, String firmenname) throws Exception {
@@ -207,7 +221,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 		webClient.closeAllWindows();
 		return umsaetze;
 	}
-	
+
 	private void setzeSaldo(List<Umsatz> teilUmsaetze, Konto konto) throws RemoteException {
 		double saldo = 0;
 		for (Umsatz umsatz : teilUmsaetze) {
@@ -242,7 +256,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 			newUmsatz.setWeitereVerwendungszwecke(Utils.parse(e.get("leistungserbringer") + " " + e.get("leistungsbeschreibung")));
 			umsaetze.add(newUmsatz);
 
-//			// Sonderfall Auslandseinsatzentgelt
+			//			// Sonderfall Auslandseinsatzentgelt
 			if (e.containsKey("auslandseinsatzentgelt wert")) {
 				newUmsatz = (Umsatz) Settings.getDBService().createObject(Umsatz.class,null);
 				newUmsatz.setKonto(konto);
@@ -272,7 +286,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 				String pre = "";
 				int nr = 1;
 				for (int i = 0; i < header.length; i++) {
-//					System.out.print(header[i]);
+					//					System.out.print(header[i]);
 					header[i] = header[i].toLowerCase();
 					String orig = header[i];
 					if (header[i].trim().equals("_") || header[i].trim().isEmpty()) {
@@ -281,7 +295,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 						nr = 1;
 					}
 					pre = orig;
-	//				System.out.println("  =>  " + header[i]);
+					//				System.out.println("  =>  " + header[i]);
 				}
 				continue;
 			}
@@ -296,7 +310,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 		return liste;
 
 	}
-	
+
 }
 
 
