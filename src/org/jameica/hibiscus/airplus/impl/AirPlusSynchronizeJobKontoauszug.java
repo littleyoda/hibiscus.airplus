@@ -128,7 +128,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 	 */
 	private void fixFehlerhafteUmsaetze(Konto konto, Date oldest) throws RemoteException, ApplicationException {
 		HashMap<String, fixit> eintrage = new HashMap<String, fixit>(); 
-		DBIterator existing = konto.getUmsaetze(oldest,null);
+		DBIterator existing = konto.getUmsaetze(null,null);
 		while (existing.hasNext()) {
 			Umsatz umsatz = (Umsatz) existing.next();
 			String ref = umsatz.getDatum() + " " + " " + Arrays.toString(umsatz.getWeitereVerwendungszwecke());
