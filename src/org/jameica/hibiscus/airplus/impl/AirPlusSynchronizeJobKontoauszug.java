@@ -218,7 +218,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 		}
 		// Logout
 		webClient.getPage("https://portal.airplus.com/logout.do?TKN=1u561.6fuojg");
-		webClient.closeAllWindows();
+		webClient.close();
 		return umsaetze;
 	}
 
