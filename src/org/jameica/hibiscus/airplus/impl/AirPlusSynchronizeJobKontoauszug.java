@@ -2,6 +2,11 @@ package org.jameica.hibiscus.airplus.impl;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -21,6 +26,7 @@ import org.jameica.hibiscus.airplus.Utils;
 import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJob;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.ProxyConfig;
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.ThreadedRefreshHandler;
@@ -179,6 +185,7 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 		List<Umsatz> umsaetze = new ArrayList<Umsatz>();
 
 		final WebClient webClient = new WebClient();
+		setProxyCfg(webClient, "https://portal.airplus.com");
 		webClient.setCssErrorHandler(new SilentCssErrorHandler());
 		webClient.setRefreshHandler(new ThreadedRefreshHandler());
 
@@ -220,6 +227,40 @@ public class AirPlusSynchronizeJobKontoauszug extends SynchronizeJobKontoauszug 
 		webClient.getPage("https://portal.airplus.com/logout.do?TKN=1u561.6fuojg");
 		webClient.close();
 		return umsaetze;
+	}
+
+	private void setProxyCfg(WebClient webClient, String url) throws URISyntaxException {
+		boolean useSystem = Application.getConfig().getUseSystemProxy();
+		
+		ProxyConfig pc = null;
+		if (useSystem) {
+		      List<Proxy> proxies = ProxySelector.getDefault().select(new URI(url));
+		      Logger.info("Using system proxy settings: " + proxies);
+		      for (Proxy p : proxies) {
+		    	  if (p.type() == Proxy.Type.HTTP && p.address() instanceof InetSocketAddress) {
+				      pc = new ProxyConfig();
+				      InetSocketAddress addr = (InetSocketAddress) p.address();
+				      pc.setProxyHost(addr.getHostString());
+				      pc.setProxyPort(addr.getPort());
+				      webClient.getOptions().setProxyConfig(pc);
+					  Logger.info("Setting Proxy to " + pc);
+				      return;
+		    	  }
+		      }
+		      Logger.error("No default Proxy found");
+		} else {
+			String host = Application.getConfig().getHttpsProxyHost();
+			int port = Application.getConfig().getHttpsProxyPort();
+			if (host != null && host.length() > 0 && port > 0) {
+			    pc = new ProxyConfig();
+				pc.setProxyHost(host);
+				pc.setProxyPort(port);
+				webClient.getOptions().setProxyConfig(pc);
+			    Logger.info("Setting Proxy to " + pc);
+				return;
+			}
+		}
+	    Logger.info("Keine gültige Proxy-Einstellunge gefunden. (" + useSystem + ")");
 	}
 
 	private void setzeSaldo(List<Umsatz> teilUmsaetze, Konto konto) throws RemoteException {
