@@ -1,7 +1,5 @@
 package org.jameica.hibiscus.airplus.impl;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
@@ -25,7 +23,6 @@ import org.jameica.hibiscus.airplus.Plugin;
 import org.jameica.hibiscus.airplus.Utils;
 import org.jameica.hibiscus.airplus.interfaces.AirPlusSynchronizeJob;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.ProxyConfig;
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
 import com.gargoylesoftware.htmlunit.TextPage;
