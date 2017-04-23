@@ -1,2 +1,5 @@
+1.0.21 -- 2017-04-23
+Anpassungen an neue HtmlUnit-Version
+
 1.0.20 -- 2016-07-04
 Proxy-Support
