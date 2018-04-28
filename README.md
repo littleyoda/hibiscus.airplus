@@ -1,3 +1,15 @@
+Dieses Plugin wird nicht mehr weiterentwicklet.
+
+Die Funktionalität ist in das folgende Plugin eingeflossen:
+
+https://github.com/littleyoda/hibiscus.ly.extensionpack
+
+
+
+
+ 
+
+
 hibiscus.airplus
 ================
 
